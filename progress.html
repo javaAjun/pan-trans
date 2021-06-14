@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>百度网盘批量转存</title>
+    <link rel="stylesheet" type="text/css" href="progress.css">
+    <link rel="icon" href="icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon"/>
+    <script src="progress.js"></script>
+</head>
+<body>
+<div class="content">
+    <div class="business">
+        <div class="input-line">
+            保存的文件夹(默认根目录)：<input id="path"/>
+        </div>
+        <div class="input-line">
+            格式：链接空格提取码,一行一个
+        </div>
+        <div class="input-line" id="sourcediv">
+            <textarea id="source"></textarea>
+            <div class="input-line text-center">
+                <button id="trans">一键转存</button>
+            </div>
+        </div>
+        <div id="progress">
+
+        </div>
+    </div>
+    <div class="about text-center">
+        <div class="desc">
+            使用插件前，请先登录百度网盘
+        </div>
+        <img src="qrcode.jpg">
+        <div>
+            <div>
+                关注作者微信公众号：
+            </div>
+            <div style="color: orange">
+                程序员阿俊
+            </div>
+            <div>获取更多优质资源</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
