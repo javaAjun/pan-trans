@@ -58,13 +58,31 @@ function save(path,key){
     chooseDir(path,key)
 }
 
+var openDir = function(li){
+    var nodes = container.getElementsByClassName("treeview-node")
+    for(var i =0; i< nodes.length; i++){
+        var node = nodes[i]
+        if(node.className.indexOf('treenode-empty') === -1 && node.className.indexOf('treeview-root') === -1){
+            console.log('打开',node.innerText)
+            node.click()
+            setTimeout(()=>{
+                openDir(node)
+            },1000)
+        }
+    }
+}
+// var dialog = document.getElementsByClassName("dialog-body");
+// var container = dialog[0].getElementsByClassName("file-tree-container")[0];
+// openDir(container)
+
 function chooseDir(path,key){
     setTimeout(()=>{
-        var dialog = document.getElementsByClassName("dialog-body");
-        if(dialog.length === 0){
+        var dialog = document.getElementsById("fileTreeDialog");
+        if(dialog.length > 2){
             chooseDir()
             return
         }
+
         var fc = dialog[0].getElementsByClassName("file-tree-container")
         var lis = fc[0].getElementsByTagName("li");
         var choosedDir = null
