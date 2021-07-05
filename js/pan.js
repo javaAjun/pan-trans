@@ -21,6 +21,14 @@ window.onload = function(){
     chrome.extension.sendRequest(reqData, function(response) {
         console.log("收到插件响应",response)
         if(response && response.code == 1){
+            var nofound = document.getElementById("share_nofound_des");
+            if(nofound!=null){
+                chrome.extension.sendRequest({type:"error",key: key,msg:"资源不存在"}, function(response) {
+
+                })
+                return
+            }
+
             var saveBtn = document.getElementsByClassName('tools-share-save-hb');
             if(saveBtn.length !== 0){
                 save(response.data.path,key)
