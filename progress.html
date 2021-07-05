@@ -11,8 +11,17 @@
 <body>
 <div class="content">
     <div class="business">
-        <div class="input-line">
-            保存的文件夹(默认根目录)：<input id="path"/>
+        <div class="input-line flex">
+            <div class="input-desc">
+                保存的文件夹：
+            </div>
+            <input id="path" placeholder="默认根目录"/>
+        </div>
+        <div class="input-line flex" style="display: none">
+            <div class="input-desc">
+                同时打开标签数
+            </div>
+            <input id="maxTabLenth" value="1"/>
         </div>
         <div class="input-line">
             格式：链接空格提取码,一行一个
@@ -29,7 +38,9 @@
     </div>
     <div class="about text-center">
         <div class="desc">
-            使用插件前，请先登录百度网盘
+            本插件为模拟用户操作实现功能</br>
+            使用插件前，请先登录百度网盘</br>
+            终止程序请关闭网页
         </div>
         <img src="img/qrcode.jpg">
         <div>

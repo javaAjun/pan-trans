@@ -1,5 +1,28 @@
 var progress = {}
+var activeTabs = []
+var error=false
 window.onload = function(){
+
+    chrome.tabs.query({},function(tabs){
+        var progressLength = 0
+        tabs.forEach(function(tab){
+            if(tab.url.indexOf("progress.html")!=-1){
+                progressLength++
+            }
+        });
+        if(progressLength>1){
+            alert("插件窗口只能打开一个")
+            window.close()
+        }
+    });
+
+    document.getElementById("maxTabLenth").addEventListener("blur", function(){
+        var input = document.getElementById("maxTabLenth");
+        var value = input.value
+        if(!value){
+            input.value=1
+        }
+    });
 
     chrome.extension.onRequest.addListener(function(reqParam, sender, sendResponse) {
         console.log("接收到页面请求",reqParam)
@@ -10,27 +33,52 @@ window.onload = function(){
             var u = urls[i]
             if(u.indexOf(key)!=-1){
                 pro = progress[u]
+                key = u
                 break
             }
         }
+
+        if(!pro){
+            console.log('未找到资源:'+key)
+            sendResponse({
+                code:0,
+                msg:'未找到资源:'+key
+            })
+            return;
+        }
+        var oldStatus = pro.status
+
+
         if(reqParam.type == 'unLogin'){
             pro.status = 3
             sendResponse({code:1})
-            var li = document.getElementById(Object.keys(progress)[0])
+            var li = document.getElementById(key)
             li.className = "error"
             li.getElementsByTagName("span")[0].innerText = "执行失败:"+reqParam.msg
             alert("请先登录百度网盘，才能继续使用插件功能")
+            error = true
+            return
+        }
+
+        if(reqParam.type == 'notfound'){
+            pro.status = 3
+            sendResponse({code:1})
+            var li = document.getElementById(key)
+            li.className = "error"
+            li.getElementsByTagName("span")[0].innerText = "执行失败:"+reqParam.msg
+            alert("在您的网盘中未找到文件夹")
+            error = true
             return
         }
 
         if(reqParam.type == 'error'){
             pro.status = 3
             sendResponse({code:1})
-            var li = document.getElementById(Object.keys(progress)[0])
+            var li = document.getElementById(key)
+
             li.className = "error"
             li.getElementsByTagName("span")[0].innerText = "执行失败:"+reqParam.msg
         }
-
         if(reqParam.type == 'finish'){
             pro.status = 2
             sendResponse({code:1})
@@ -38,23 +86,19 @@ window.onload = function(){
             li.className = "finish"
             li.getElementsByTagName("span")[0].innerText = "执行结束"
         }
-        startProgress()
 
-        if(pro){
-            sendResponse({
-                code:1,
-                msg:'ok',
-                data: {
-                    tqm:pro.tqm,
-                    path:pro.path
-                }
-            })
-        }else{
-            sendResponse({
-                code:0,
-                msg:'未找到资源:'+key
-            })
+        if(reqParam.type!='onload' && !error && oldStatus!=3){
+            startProgress(pro.tabid)
         }
+
+        sendResponse({
+            code:1,
+            msg:'ok',
+            data: {
+                tqm:pro.tqm,
+                path:pro.path
+            }
+        })
 
     });
 
@@ -78,30 +122,48 @@ window.onload = function(){
 
         document.getElementById("sourcediv").style.display="none";
         document.getElementById("progress").innerHTML = proHtml
-        startProgress()
+
+        document.getElementById("maxTabLenth").setAttribute("disabled","disabled")
+        document.getElementById("path").setAttribute("disabled","disabled")
+        var maxTabLenth = document.getElementById("maxTabLenth").value
+        for(var i=0;i<maxTabLenth;i++){
+            chrome.tabs.create({
+                selected:false
+            }, function(tab){
+                startProgress(tab.id)
+            })
+        }
     })
 
-    function startProgress() {
+
+
+    function startProgress(tabid) {
         for(key in progress){
             var prog = progress[key];
             if(prog.status == 0){
+                progress[key].status = 1
                 var li = document.getElementById(key)
-                console.log(li)
                 li.className = "executing"
                 console.log(li.getElementsByTagName("span"))
                 li.getElementsByTagName("span")[0].innerText = "执行中"
 
-                chrome.tabs.create({
-                    url: prog.url
-                }, function(tab){
-                    progress[key].tabid = tab.id
-                    progress[key].status = 1
-                })
 
+                chrome.tabs.update(tabid, {
+                    url: prog.url
+                });
+                progress[key].tabid= tabid
+
+                // chrome.tabs.get(oldTabId, (tab)=>{
+                //     console.log(tab)
+                //     tab.url = prog.url
+                //     progress[key].tabid = tab.id
+                // })
                 break
             }
         }
     }
 }
+
+
 
 
